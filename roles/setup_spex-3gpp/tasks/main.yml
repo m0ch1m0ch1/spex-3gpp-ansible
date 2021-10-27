@@ -1,0 +1,58 @@
+---
+- name: Create a volume for db
+  docker_volume:
+    name: db-volume
+
+- name: Create a volume for spex
+  docker_volume:
+    name: spex-volume
+
+- name: Create a network
+  docker_network:
+    name: spex-net
+
+- name: Create a db container and connect to network
+  docker_container:
+    name: db
+    image: mysql:latest
+    restart: yes
+    restart_policy: always
+    networks:
+      - name: spex-net
+    networks_cli_compatible: yes
+    env:
+      MYSQL_DATABASE: 'spex'
+      MYSQL_USER: 'spex'
+      MYSQL_PASSWORD: 'spex'
+      MYSQL_ROOT_PASSWORD: 'spex'
+    volumes:
+      - db-volume:/var/lib/mysql
+    tty: yes
+
+- name: Wait while a db container is starting
+  pause:
+    seconds: 30
+
+- name: Create a spex container and connect to network
+  docker_container:
+    name: spex
+    image: corfr/spex:latest
+    restart: yes
+    restart_policy: always
+    networks:
+      - name: spex-net
+    networks_cli_compatible: yes
+    env:
+      MYSQL_PORT_3306_TCP_ADDR: "db"
+      MYSQL_ENV_DB_PASS: 'spex'
+      MYSQL_ENV_DB_USER: 'spex'
+      MYSQL_ENV_DB_NAME: 'spex'
+    volumes:
+      - spex-volume:/home/app/webapp/specs
+    ports:
+      - "3000:80"
+    tty: yes
+
+- name: Wait while a spex container is starting
+  pause:
+    seconds: 30

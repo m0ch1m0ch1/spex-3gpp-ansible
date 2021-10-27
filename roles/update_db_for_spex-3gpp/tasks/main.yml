@@ -1,0 +1,3 @@
+---
+- name: Update database
+  command: docker exec -i -u app spex bash -c 'cd /home/app/webapp; bundle exec rake db:setup DISABLE_DATABASE_ENVIRONMENT_CHECK=1; bundle exec /home/app/webapp/script/init_3gpp.rb'

@@ -1,0 +1,10 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - import_role:
+        name: setup_docker
+    - import_role:
+        name: setup_spex-3gpp
+    - import_role:
+        name: update_db_for_spex-3gpp
